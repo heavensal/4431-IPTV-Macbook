@@ -2,7 +2,7 @@
 
 Application IPTV native pour Mac Apple Silicon, sous macOS 13 ou ultérieur. Connexion par compte Xtream ou par URL de playlist Xtream M3U. Les identifiants sont conservés dans le Trousseau du Mac.
 
-**[Télécharger le DMG 0.0.3](https://github.com/heavensal/4431-IPTV-Macbook/releases/download/v0.0.3/4431-IPTV-Macbook-0.0.3.dmg)** · [Notes de version](https://github.com/heavensal/4431-IPTV-Macbook/releases/tag/v0.0.3)
+**[Télécharger le DMG 0.0.4](https://github.com/heavensal/4431-IPTV-Macbook/releases/download/v0.0.4/4431-IPTV-Macbook-0.0.4.dmg)** · [Notes de version](https://github.com/heavensal/4431-IPTV-Macbook/releases/tag/v0.0.3)
 
 Ouvrir le DMG et glisser 4431 IPTV dans Applications. Cette compilation utilise une signature locale ad hoc.
 
