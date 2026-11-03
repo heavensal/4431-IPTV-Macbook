@@ -30,6 +30,7 @@ ET.SubElement(item, "enclosure", {
 ET.indent(rss)
 ET.ElementTree(rss).write("appcast.xml", encoding="utf-8", xml_declaration=True)
 PY
+git push origin main
 gh release create "v$version" "$asset" --repo "$repo" --target "$(git rev-parse HEAD)" --title "4431 IPTV pour Mac · $version" --notes-file RELEASE_NOTES.md --draft
 git add appcast.xml
 git commit -m "Publish update feed $version"
