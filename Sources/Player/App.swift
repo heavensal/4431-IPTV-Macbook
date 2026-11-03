@@ -154,8 +154,9 @@ enum Vault {
     }
 }
 @main struct IPTVApp: App {
+    @StateObject private var updates = Updates()
     @StateObject private var m = Model()
-    var body: some Scene { Window("4431 IPTV", id:"main") { Screen(m:m).task { m.restore() } } }
+    var body: some Scene { Window("4431 IPTV", id:"main") { Screen(m:m).task { m.restore() } }.commands { CommandGroup(after:.appInfo) { Button("Rechercher les mises à jour…") { updates.check() } } } }
 }
 struct Screen: View {
     @State private var full = false

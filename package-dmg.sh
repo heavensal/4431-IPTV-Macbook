@@ -2,6 +2,7 @@
 set -eu
 cd "$(dirname "$0")"
 ./fetch-vlckit.sh
+./fetch-sparkle.sh
 export CLANG_MODULE_CACHE_PATH="$PWD/.build/modules"
 swift build --disable-sandbox -c release
 bin=$(swift build --disable-sandbox -c release --show-bin-path)
@@ -10,21 +11,27 @@ stage=$(mktemp -d "$PWD/.build/dmg.XXXXXX")
 app="$stage/4431 IPTV.app"
 mkdir -p "$app/Contents/MacOS"
 cp "$bin/Player" "$app/Contents/MacOS/Player"
-cat > "$app/Contents/Info.plist" <<'PLIST'
+cat > "$app/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0"><dict>
 <key>CFBundleExecutable</key><string>Player</string>
 <key>CFBundleIdentifier</key><string>local.heavensal.4431iptv</string>
 <key>CFBundleName</key><string>4431 IPTV</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleVersion</key><string>2</string>
-<key>CFBundleShortVersionString</key><string>0.0.2</string>
+<key>CFBundleVersion</key><string>$(cat BUILD)</string>
+<key>CFBundleShortVersionString</key><string>$(cat VERSION)</string>
+<key>SUFeedURL</key><string>https://raw.githubusercontent.com/heavensal/4431-IPTV-Macbook/main/appcast.xml</string>
+<key>SUPublicEDKey</key><string>nvpZi7+vOtG9yHXN/zdR+Uk5pY9SLg4hJ6DJ3ncfJa0=</string>
+<key>SUEnableAutomaticChecks</key><true/>
+<key>SUAutomaticallyUpdate</key><false/>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>NSAppTransportSecurity</key><dict><key>NSAllowsArbitraryLoads</key><true/></dict>
 </dict></plist>
 PLIST
 mkdir -p "$app/Contents/Frameworks" "$app/Contents/Resources"
 ditto Vendor/VLCKit.xcframework/macos-arm64_x86_64/VLCKit.framework "$app/Contents/Frameworks/VLCKit.framework"
+ditto Vendor/Sparkle/Sparkle.framework "$app/Contents/Frameworks/Sparkle.framework"
+cp Vendor/Sparkle/LICENSE "$app/Contents/Resources/Sparkle-LICENSE.txt"
 cp Vendor/COPYING.txt "$app/Contents/Resources/VLCKit-LICENSE.txt"
 codesign --force --sign - "$app/Contents/Frameworks/VLCKit.framework"
 codesign --force --sign - "$app"
