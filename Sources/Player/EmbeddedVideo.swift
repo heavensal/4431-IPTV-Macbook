@@ -23,6 +23,17 @@ struct EmbeddedVideo: View {
     private var engine: VLCMediaPlayer { session.player }
     @State private var position: Double = 0
     @State private var dragging = false
+    @State private var controlsVisible = true
+    @State private var hideTask: Task<Void,Never>?
+    @State private var monitor: Any?
+    private func showControls() {
+        controlsVisible = true
+        hideTask?.cancel()
+        hideTask = Task { @MainActor in
+            do { try await Task.sleep(nanoseconds:2_000_000_000) } catch { return }
+            if !dragging { controlsVisible = false }
+        }
+    }
     @State private var seekable = false
     @State private var playing = false
     @State private var failed = false
@@ -55,10 +66,31 @@ struct EmbeddedVideo: View {
                 }.controlSize(full ? .large : .regular)
                 Slider(value:$position,in:0...1,onEditingChanged:{ editing in
                     dragging = editing
+                    showControls()
                     if !editing && engine.isSeekable { engine.position = Float(position) }
                 }).disabled(!seekable)
             }.padding(8).background(Color(red:0.07,green:0.09,blue:0.2).opacity(0.90))
-        }.task {
+            .opacity(controlsVisible ? 1 : 0)
+            .allowsHitTesting(controlsVisible)
+            .accessibilityHidden(!controlsVisible)
+        }
+        .onContinuousHover { phase in
+            if case .active = phase { showControls() }
+        }
+        .onAppear {
+            showControls()
+            monitor = NSEvent.addLocalMonitorForEvents(matching:[.keyDown,.keyUp,.flagsChanged,.leftMouseDown,.leftMouseUp,.rightMouseDown,.rightMouseUp,.otherMouseDown,.otherMouseUp,.scrollWheel,.leftMouseDragged,.rightMouseDragged,.otherMouseDragged,.mouseMoved]) { event in
+                showControls()
+                return event
+            }
+        }
+        .onDisappear {
+            if let monitor { NSEvent.removeMonitor(monitor) }
+            monitor = nil
+            hideTask?.cancel()
+        }
+        .onChange(of:full) { _ in showControls() }
+        .task {
             while !Task.isCancelled {
                 audio = MediaTrack.list(engine.audioTrackIndexes,engine.audioTrackNames)
                 subtitles = MediaTrack.list(engine.videoSubTitlesIndexes,engine.videoSubTitlesNames)
